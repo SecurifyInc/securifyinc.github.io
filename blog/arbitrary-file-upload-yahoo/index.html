@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Securify Blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="../../assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="../../assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="../../assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Securify Inc.</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="../../index.html">Home</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Abritrary File Upload in Yahoo</h2>
+								<p>Content-Type Mishap allowing any file to be uploaded</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+
+									<h3 class="major">Starting the Research</h3>
+									<p>While doing a security research on Yahoo Inc. systems, I decided to analyze its iOS apps and see how they were handled. Yahoo in general has wide variety of scopes from all of its *.yahoo.com domain to domains of it acquisitions as well. That said, many researchers focus on web applications that Yahoo has which leaves some of its iOS apps vulnerable.</p>
+									
+									<p>First process was to download the app. To test out a security of one of its services, I downloaded Cabana. <a href=" https://itunes.apple.com/us/app/cabana-hang-out-watch-stuff/id1217648367?mt=8">Cabana</a> is an iOS app developed by Yahoo Inc. When first downloading it looks that this allows users to send pictures and share live videos with their friends.</p>
+
+									<h3 class="major">Finding the vulnerability</h3>
+									<p>After the app was downloaded, it requested that I signup on the website. Once the signup was done, it asked, me to upload a profile picture. While using the app, I used Burp Suite to intercept/monitor every request the app was making. When the picture was uploaded, it sent a <code>POST</code> request to cabana.yahoo.com and uploaded the jpeg image. Cabana mostly relies on image sharing, so I decided to play around with its upload function. It seemed that no matter what was in the POST request, it will by default set the filetype to <code>image/jpeg</code>. This was done through Content-Type header. I forwarded this request to the Repeater tab.</p>
+									
+									<p>In the repeater tab, I changed the Content-Type from <code>image/jpeg</code> to <code>text/html</code> and added a simple script:
+									<pre><code>&#x3C;script&#x3E;alert(document.domain)&#x3C;/script&#x3E;</code></pre> When the request was forwarded, it gave me a link with .html extension on it. When the link was copied and browsed to, it loaded the HTML file and the javascript executed. </p>
+									
+									<p>Yahoo fixed this vulnerability on June 1, 2017</p>
+										
+										<h3 class="major">Articles to Read</h3>
+									<section class="features">
+										<article>
+											<a href="#" class="image"><img src="images/pic05.jpg" alt="" /></a>
+											<h3 class="major">Shodan & Jenkins to find RCE</h3>
+											<p>This is a mini-research paper that our red team wrote where with use of Shodan we were able to find RCE in a client's server.</p>
+											<a href="../shodan-jenkins-rce/" class="special">Read more</a>
+										</article>
+									</section>
+
+								</div>
+							</div>
+
+					</section>
+
+				<!-- Footer -->
+					<section id="footer">
+						<div class="inner">
+							<ul class="copyright">
+								<li>&copy; Securify Inc.</li>
+							</ul>
+						</div>
+					</section>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../../assets/js/skel.min.js"></script>
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="../../assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>

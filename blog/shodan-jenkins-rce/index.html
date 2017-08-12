@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Securify Blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="../../assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="../../assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="../../assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Securify Inc.</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="../../index.html">Home</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Shodan & Jenkins to find RCE</h2>
+								<p>Mini-research writeup based on real life pentest</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+
+									<h3 class="major">What is Jenkins?</h3>
+									<p>The main page of Jenkins is <a href="https://jenkins.io/">here</a>. Jenkins is an application that can be used to automate deployment of your projects/applications. This way every actions taken to update your project is synchronized and you can also see how the deployment went. It also helps you to scale large projects and make it easier for them to be managed.</p>
+
+									<h3 class="major">What is the risk of having Jenkins instance public?</h3>
+									<p>Before we go into assumption that having Jenkins instance public is bad, we need to understand that some of them can be intentional. Sometime companies keep them open for others to see different open sourced projects. So if you find a open Jenkins instance, it does not mean you have access to companies source code. In some cases you might have access, while in other cases it might just be an application use to show deployment of open source projects.</p>
+									
+									<p>Now to the risk. There are multiple ways a unintentionally public made Jenkins can have severe risk to companies. Most of the unintentional Jenkins that I found during the research had source code of their application on it. This gave access to confidential information which included private keys to the APIs they used along with username and passwords for some of their services.</p>
+									
+									<p>Having access to source code is most of the times a game over situation. Once an attacker has access to source code, he basically has advantage over your company. They now know your private keys which can give them access to other services of your own, check this <a href="https://hackerone.com/reports/167859">HackerOne report</a>. This vulnerability in Zomato gave our researcher access to the source code of Zomato which eventually also had login information for SQL database.</p>
+									
+									<h3 class="major">What is the RCE technique?</h3>
+									<p>This RCE technique has been known for quite a while. We want to use this blog as a way to highlight how this can be exploited. RCE = Remote code execution. This allows attacker to run command in the server and upload arbitrary files. As the title mentions, through Shodan you can find most-all open Jenkins instances that are public. While some might be intentional but other might not be. Some even have ability to run some sweet(for researchers & bitter for managers) commands.</p>
+									
+									<p>Following is the stat that we gathered from Shodan:</p>
+									
+									<p>Top Countries with public Jenkins Instance</p>
+									<div class="table-wrapper">
+											<table class="alt">
+												<thead>
+													<tr>
+														<th>Country</th>
+														<th>Open Jenkins</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>United States</td>
+														<td>3,329</td>
+													</tr>
+													<tr>
+														<td>Germany</td>
+														<td>589</td>
+													</tr>
+													<tr>
+														<td>China</td>
+														<td>449</td>
+													</tr>
+													<tr>
+														<td>France</td>
+														<td>387</td>
+													</tr>
+													<tr>
+														<td>Ireland</td>
+														<td>321</td>
+													</tr>
+													<tr>
+														<td>Netherlands</td>
+														<td>261</td>
+													</tr>
+													<tr>
+														<td>United Kingdom</td>
+														<td>254</td>
+													</tr>
+													<tr>
+														<td>Japan</td>
+														<td>204</td>
+													</tr>
+													<tr>
+														<td>Canada</td>
+														<td>185</td>
+													</tr>
+													<tr>
+														<td>Singapore</td>
+														<td>174</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<p>A detail data can be found in Shodan's report page <a href="https://www.shodan.io/report/uLf5fCyi">here</a>.</p>
+										
+										<h3 class="major">Exploiting to Get RCE</h3>
+										
+										<p>Exploitation of RCE under certain condition is an easier part. Similar to other CMS/apps if you have right to manage an app then you can understand that you have some type of privilege already. In such cases, conducting attacks just gets easier.</p>
+										
+										<p>On Jenkins application, if you have a facility to <code>Manage Application</code> then you need to smile and relax because you might have just got a sweet RCE. After clicking Manage Jenkins go to Manage Plugins</p>
+										
+										<p>Once there, click on <code>Available</code> tab. This allows you to install available plugins to the application. Look for <code>Terminal Plugin</code> and install it. This installs terminal to the Jenkins app. Most of the time the user privilege for this will be a Jenkins user assigned in the server. For our pentest, we found out that our user was <code>Root</code>. This allowed us to conduct any kind of actions that we wanted. If you want to see what permissions you have, simply type <code>whoami</code> in the terminal plugin and hit enter.</p>
+										
+										<h3 class="major">Articles to Read</h3>
+									<section class="features">
+										<article>
+											<a href="#" class="image"><img src="images/pic05.jpg" alt="" /></a>
+											<h3 class="major">Abritrary File Upload in Yahoo</h3>
+											<p>Vulnerability that allowed us to upload a .html file in cabana.yahoo.com</p>
+											<a href="../arbitrary-file-upload-yahoo/" class="special">Read more</a>
+										</article>
+									</section>
+
+								</div>
+							</div>
+
+					</section>
+
+				<!-- Footer -->
+					<section id="footer">
+						<div class="inner">
+							<ul class="copyright">
+								<li>&copy; Securify Inc.</li>
+							</ul>
+						</div>
+					</section>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../../assets/js/skel.min.js"></script>
+			<script src="../../assets/js/jquery.min.js"></script>
+			<script src="../../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../../assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="../../assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../../assets/js/main.js"></script>
+
+	</body>
+</html>
